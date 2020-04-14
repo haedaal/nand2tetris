@@ -43,4 +43,30 @@ CHIP ALU {
 
     PARTS:
    // Put you code here:
+
+   // Prepare operand1
+   Mux16(a=x,b=false,sel=zx,out=x2);
+   Not16(in=x2,out=notx2);
+   Mux16(a=x2,b=notx2,sel=nx,out=op1);
+
+   // Prepare operand2
+   Mux16(a=y,b=false,sel=zy,out=y2);
+   Not16(in=y2,out=noty2);
+   Mux16(a=y2,b=noty2,sel=ny,out=op2);
+
+   // Core
+   Add16(a=op1,b=op2,out=op1addop2);
+   And16(a=op1,b=op2,out=op1andop2);
+   Mux16(a=op1andop2,b=op1addop2,sel=f,out=rawout);
+
+    // Postop
+   Not16(in=rawout,out=notout);
+
+   Mux16(a=rawout,b=notout,sel=no,out=out, out[15]=ng, out[0..7]=outlow, out[8..15]=outhigh);
+
+    // Flags
+   Or8Way(in=outlow,out=or0);
+   Or8Way(in=outhigh,out=or1);
+   Or(a=or0,b=or1,out=notzero);
+   Not(in=notzero,out=zr);
 }
