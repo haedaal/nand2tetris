@@ -28,4 +28,19 @@ CHIP Memory {
 
     PARTS:
     // Put your code here:
+
+    // ram
+    Not(in=address[14],out=ram);
+    And(a=ram, b=load, out=loadram);
+
+    // screen
+    Not(in=address[13],out=maybescreen);
+    And(a=address[14],b=maybescreen,out=screen);
+    And(a=screen,b=load,out=loadscreen);
+
+    RAM16K(in=in,load=loadram,address=address[0..13],out=ramout);
+    Screen(in=in,load=loadscreen,address=address[0..12],out=screenout);
+    Keyboard(out=kbd);
+
+    Mux4Way16(a=ramout,b=ramout,c=screenout,d=kbd,sel=address[13..14],out=out);
 }

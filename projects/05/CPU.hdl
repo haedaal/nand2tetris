@@ -40,4 +40,56 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
+
+    // Decode - store target
+    And(a=instruction[15],b=instruction[5],out=desta);
+    And(a=instruction[15],b=instruction[4],out=destd);
+    And(a=instruction[15],b=instruction[3],out=writeM);
+
+    Not(in=instruction[15],out=ainstr);
+    Or(a=ainstr,b=desta,out=loada);
+
+    // Decode - jmp
+    And(a=instruction[2],b=ng,out=j1);
+    And(a=instruction[1],b=zr,out=j2);
+    Or(a=ng,b=zr,out=notpos);
+    Not(in=notpos,out=pos);
+    And(a=instruction[0],b=pos,out=j3);
+    Or(a=j1,b=j2,out=j12);
+    Or(a=j12,b=j3,out=j123);
+    And(a=j123,b=instruction[15],out=jmp);
+    Not(in=jmp,out=notjmp);
+
+    // Mux
+    Mux16(a[0..14]=instruction[0..14],a[15]=false,b=aluout,sel=instruction[15],out=aregin);
+    Mux16(a=aregout,b=inM,sel=instruction[12],out=secondop);
+
+    // A register
+    ARegister(in=aregin,load=loada,out[0..14]=addressM,out=aregout);
+    // D register
+    DRegister(in=aluout,load=destd,out=dregout);
+    // PC
+    PC(in=aregout,load=jmp,inc=notjmp,reset=reset,out[0..14]=pc);
+
+    ALU(
+        // IN
+        // 16-bit inputs:
+        x=dregout, 
+        y=secondop,
+        // Control bits:
+        zx=instruction[11], // Zero the x input
+        nx=instruction[10], // Negate the x input
+        zy=instruction[9], // Zero the y input
+        ny=instruction[8], // Negate the y input
+        f=instruction[7],  // Function code: 1 for add, 0 for and
+        no=instruction[6], // Negate the out output
+
+        // OUT 
+        // 16-bit output
+        out=aluout,
+        out=outM,
+        // ALU output flags
+        zr=zr, // 1 if out=0, 0 otherwise
+        ng=ng // 1 if out<0, 0 otherwise
+    );
 }
