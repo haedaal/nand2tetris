@@ -13,17 +13,17 @@
     @R0
     D=M
     @END
-    D; JEQ
+    D;JEQ
 
     @R0
     M=D-1
     @R1
-    D = M
+    D=M
     @R2
-    M=M+D
+    M=D+M
 
     @LOOP 
-    0; JMP
+    0;JMP
 (END)
     @END
-    0; JMP
+    0;JMP
