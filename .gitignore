@@ -2,3 +2,4 @@
 *.dat
 *.zip
 *.hack
+projects/07/**/*.asm
